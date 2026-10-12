@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>مدرسة الشعراوية لتعليم السياقة</title>
+  <link rel="shortcut icon" href="img/sha14.png" type="image/x-icon">
+  <meta name="description" content="مدرسة الشعراوية لتعليم السياقة في طولكرم تقدم خدمات تعليم القيادة والتأهيل لاجتياز امتحان التئوريا والحصول على رخصة السياقة. تأسست عام 1985 وتوفر تعليم عملي ونظري باحتراف، مع مدربات متخصصات للسيدات.">
+  <meta name="keywords" content="مواقيت القيادة, تعليم القيادة, رخصة السياقة, طولكرم, مدرسة الشعراوية">
+  <meta name="author" content="مدرسة الشعراوية لتعليم السياقة">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --red: #e74c3c;
+      --red-dark: #c0392b;
+      --primary-color: #2c3e50;
+      --text-color: #333;
+      --light-bg: #f8f9fa;
+      --white: #ffffff;
+      --shadow: 0 10px 20px rgba(0,0,0,0.1);
+      --transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      --navbar-height: 90px;
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      background-color: var(--light-bg);
+      color: var(--text-color);
+      overflow-x: hidden;
+      line-height: 1.6;
+      transition: overflow 0.3s;
+    }
+    
+    body.menu-open { overflow: hidden; }
+
+    /* --- Loading Screen --- */
+    #loader {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+        background-color: var(--white); z-index: 9999;
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+        transition: opacity 0.6s ease-out, visibility 0.6s ease-out;
+        /* Ensure it doesn't block clicks while fading out */
+        pointer-events: auto; 
+    }
+    
+    /* The class added by JS to hide it */
+    #loader.hidden { 
+        opacity: 0; 
+        visibility: hidden; 
+        pointer-events: none; /* Allows clicks to pass through */
+    }
+    
+    .loader-content { text-align: center; position: relative; }
+    
+    /* Circle containing the image */
+    .loader-logo-container {
+        width: 160px; height: 160px; border-radius: 50%; position: relative; margin: 0 auto 30px;
+        display: flex; justify-content: center; align-items: center; background-color: #f8f9fa;
+    }
+    /* The spinning border */
+    .loader-logo-container::before {
+        content: ''; position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px;
+        border-radius: 50%; border: 5px solid transparent;
+        border-top-color: var(--red); border-right-color: var(--red-dark);
+        animation: spin 1.2s linear infinite;
+        box-shadow: 0 0 15px rgba(231, 76, 60, 0.4);
+    }
+    .loader-logo {
+        width: 100%; height: 100%; border-radius: 50%; object-fit: cover;
+    }     
+    .loader-text { font-size: 1.3rem; color: var(--text-color); font-weight: bold; margin-bottom: 10px; }
+    
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    a { text-decoration: none; color: inherit; transition: var(--transition); }
+    ul { list-style: none; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+    /* --- Button Styles --- */
+    .btn {
+      display: inline-block; padding: 12px 30px; background-color: var(--red); color: var(--white);
+      border-radius: 50px; font-weight: bold; margin-top: 20px;
+      box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4); transition: var(--transition);
+      z-index: 2; position: relative; overflow: hidden; border: none; cursor: pointer;
+      opacity: 0; transform: translateY(20px); font-family: 'Cairo', sans-serif; font-size: 1rem;
+    }
+    .btn::before {
+      content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); transition: 0.5s;
+    }
+    .btn:hover::before { left: 100%; }
+    .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(231, 76, 60, 0.6); }
+
+    /* --- Navbar --- */
+    .navbar {
+      background-color: transparent; padding: 15px 0; position: fixed; top: 0; left: 0;
+      width: 100%; z-index: 1000; transition: background-color 0.4s ease, padding 0.4s ease, box-shadow 0.4s ease;
+    }
+    .navbar.scrolled { background-color: var(--white); box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 10px 0; }
+    .navbar .container { display: flex; justify-content: space-between; align-items: center; flex-direction: row; }
+    .logo img { height: 80px; border-radius: 5px; }
+    .logo { position: relative; display: inline-block; overflow: hidden; }
+    .logo::before {
+        content: ""; position: absolute; top: 0; right: -100%; width: 30%; height: 80%;
+        background: linear-gradient(120deg, transparent, rgba(255,255,255, 0.345), transparent);
+        transform: skewX(-25deg); animation: shine 3s infinite;
+    }
+    @keyframes shine { 0% { right: -100%; } 100% { right: 150%; } }
+
+    /* --- Desktop Nav --- */
+    .desktop-nav { display: flex; align-items: center; }
+    .desktop-nav ul { display: flex; align-items: center; }
+    .desktop-nav li { position: relative; margin-left: 25px; }
+    .desktop-nav a {
+        font-weight: 600; color: var(--white); text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        position: relative; font-size: 0.95rem;
+    }
+    .desktop-nav a::after {
+        content: ''; position: absolute; width: 0; height: 2px; bottom: -5px; right: 0;
+        background-color: var(--red); transition: width 0.3s;
+    }
+    .desktop-nav a:hover::after { width: 100%; }
+    .desktop-nav a:hover, .desktop-nav a.active { color: var(--red); }
+    .navbar.scrolled .desktop-nav a { color: var(--primary-color); text-shadow: none; }
+    .navbar.scrolled .desktop-nav a:hover::after { background-color: var(--red); }
+
+    /* Desktop Dropdown */
+    .desktop-nav ul ul {
+        display: none; position: absolute; top: 100%; right: 0; background-color: var(--white);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-radius: 5px; min-width: 200px;
+        z-index: 1001; padding: 10px 0; flex-direction: column; align-items: flex-start;
+    }
+    .desktop-nav ul li:hover > ul { display: block; }
+    .desktop-nav ul ul li { margin: 0; width: 100%; }
+    .desktop-nav ul ul a {
+        color: var(--primary-color); padding: 10px 20px; display: block;
+        font-size: 0.9rem; text-shadow: none;
+    }
+    .desktop-nav ul ul a:hover { background-color: #f1f1f1; color: var(--red); }
+
+    /* --- Hamburger Button --- */
+    .menu-toggle {
+      display: none; width: 30px; height: 24px; position: relative; cursor: pointer;
+      z-index: 1002; background: none; border: none; padding: 0;
+    }
+    .menu-toggle span {
+      display: block; position: absolute; height: 3px; width: 100%; background: var(--white);
+      border-radius: 3px; opacity: 1; right: 0; transition: all 0.4s ease;
+    }
+    .navbar.scrolled .menu-toggle span { background: var(--primary-color); }
+    
+    .menu-toggle span:nth-child(1) { top: 0px; }
+    .menu-toggle span:nth-child(2) { top: 10px; }
+    .menu-toggle span:nth-child(3) { top: 20px; }
+    
+    /* Active Hamburger (X shape) */
+    .menu-toggle.active span:nth-child(1) { top: 10px; transform: rotate(45deg); background: var(--red); }
+    .menu-toggle.active span:nth-child(2) { width: 0%; opacity: 0; }
+    .menu-toggle.active span:nth-child(3) { top: 10px; transform: rotate(-45deg); background: var(--red); }
+
+    /* --- Mobile Curtain Menu --- */
+    .mobile-curtain-menu {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+      background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px);
+      z-index: 999; padding-top: var(--navbar-height);
+      transform: translateY(-100%); opacity: 0;
+      transition: transform 0.5s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.4s ease;
+      overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    .mobile-curtain-menu.active { 
+      transform: translateY(0); opacity: 1; 
+    }
+
+    .mobile-nav-links { 
+      padding: 20px; max-width: 600px; margin: 0 auto;
+    }
+    .mobile-nav-links > li { border-bottom: 1px solid #eee; }
+    .mobile-nav-links > li > a {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 18px 10px; color: var(--primary-color); font-size: 1.2rem; font-weight: 700;
+    }
+    .mobile-nav-links > li > a i.fa-chevron-down { font-size: 0.8em; transition: transform 0.3s, color 0.3s; }
+    .mobile-nav-links > li.open > a i.fa-chevron-down { transform: rotate(180deg); color: var(--red); }
+    .mobile-nav-links > li.open > a { color: var(--red); }
+    
+    .mobile-dropdown { 
+      max-height: 0; overflow: hidden; 
+      transition: max-height 0.4s ease-out, opacity 0.3s ease; opacity: 0; 
+      background-color: #f8f9fa; border-radius: 8px; margin-bottom: 10px;
+    }
+    .mobile-nav-links > li.open .mobile-dropdown { opacity: 1; }
+    .mobile-dropdown li { border-bottom: 1px solid #e9ecef; }
+    .mobile-dropdown li:last-child { border-bottom: none; }
+    .mobile-dropdown a { display: block; padding: 15px 20px; color: #555; font-size: 1rem; font-weight: 600; }
+    .mobile-dropdown a:hover { color: var(--red); background-color: #f1f1f1; padding-right: 25px; }
+
+    /* --- Hero Section --- */
+    .hero {
+      position: relative; height: 100vh; display: flex; align-items: center;
+      justify-content: center; text-align: center; color: var(--white);
+      overflow: hidden; border-bottom: 5px solid var(--red); padding-top: 80px;
+    }
+    .hero-slider { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
+    .hero-slide {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background-size: cover; background-position: center; background-attachment: fixed;
+      opacity: 0; transform: scale(1.1);
+      transition: transform 6s ease, opacity 1s ease-in-out;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+    }
+    .hero-slide::before {
+        content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.5); z-index: 1;
+    }
+    .hero-slide.active { opacity: 1; transform: scale(1); }
+    .hero-content { position: relative; z-index: 2; max-width: 800px; padding: 20px; margin-top: 40px; }
+    .hero h1 {
+      font-size: 3.5rem; margin-bottom: 15px; font-weight: 800; opacity: 0; transform: translateY(30px);
+      transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    }
+    .hero p {
+      font-size: 1.5rem; margin-bottom: 20px; opacity: 0; transform: translateY(30px);
+      transition: opacity 0.8s ease-out 0.2s, transform 0.8s ease-out 0.2s;
+    }
+    .hero .btn { transition: opacity 0.8s ease-out 0.4s, transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.4s, box-shadow 0.4s; }
+    .hero-slide.active .hero-content h1,
+    .hero-slide.active .hero-content p,
+    .hero-slide.active .hero-content .btn { opacity: 1; transform: translateY(0); }
+    
+    /* --- Waves Animation --- */
+    .waves { position: absolute; bottom: 0; left: 0; width: 100%; height: 15vh; margin-bottom: -7px; min-height: 100px; max-height: 150px; z-index: 5; }
+    .waves svg { position: relative; display: block; width: calc(138% + 1.3px); height: 100%; }
+    .parallax > use { animation: move-forever 25s cubic-bezier(.55,.5,.45,.5) infinite; }
+    .parallax > use:nth-child(1) { animation-delay: -2s; animation-duration: 7s; fill: rgba(231, 76, 60, 0.7); }
+    .parallax > use:nth-child(2) { animation-delay: -3s; animation-duration: 10s; fill: rgba(231, 76, 60, 0.5); }
+    .parallax > use:nth-child(3) { animation-delay: -4s; animation-duration: 13s; fill: rgba(231, 76, 60, 0.3); }
+    .parallax > use:nth-child(4) { animation-delay: -5s; animation-duration: 20s; fill: var(--red); }
+    @keyframes move-forever { 0% { transform: translate3d(-90px,0,0); } 100% { transform: translate3d(85px,0,0); } }
+
+    /* --- Flip Cards --- */
+    .cards-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px; padding: 80px 20px; max-width: 1200px; margin: 0 auto;
+    }
+    .flip-card { background-color: transparent; height: 350px; perspective: 1000px; }
+    .flip-inner {
+      position: relative; width: 100%; height: 100%; text-align: center;
+      transition: transform 0.8s; transform-style: preserve-3d; box-shadow: var(--shadow); border-radius: 15px;
+    }
+    .flip-card.flipped .flip-inner { transform: rotateY(180deg); }
+    
+    .flip-front, .flip-back {
+      position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden;
+      backface-visibility: hidden; border-radius: 15px; display: flex; flex-direction: column;
+      justify-content: center; align-items: center; padding: 20px;
+    }
+    .flip-front { background-color: var(--white); color: var(--primary-color); }
+    .flip-back {
+      background-color: var(--primary-color); color: var(--white); transform: rotateY(180deg);
+      text-align: right; align-items: flex-start;
+    }
+    .badge { width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; color: var(--white); margin-bottom: 20px; }
+    .badge.green { background-color: #27ae60; } .badge.yellow { background-color: #f1c40f; }
+    .badge.blue { background-color: #2980b9; } .badge.dark { background-color: #34495e; }
+    .flip-front h3 { font-size: 1.5rem; margin-bottom: 10px; } .flip-front span { color: #777; font-size: 0.9rem; }
+    .flip-back h4 { margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px; width: 100%; }
+    .flip-back p { font-size: 0.95rem; margin-bottom: 10px; } .flip-back .info { font-size: 0.85rem; opacity: 0.8; display: block; margin-bottom: 5px; }
+    .status { margin-top: auto; padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
+    .status.success { background-color: #27ae60; } .status.waiting { background-color: #f39c12; } .status.pending { background-color: var(--red); }
+
+    /* --- Founder Section --- */
+    .founder-section { background: linear-gradient(135deg, #000, #1a1a1a); padding: 60px 20px; }
+    .founder-container { display: flex; align-items: center; justify-content: space-between; gap: 40px; max-width: 1000px; margin: auto; color: var(--white); }
+    .founder-text { flex: 1; }
+    .founder-text h2 { font-size: 28px; margin-bottom: 10px; } .founder-text h3 { color: var(--red); margin-bottom: 15px; } .founder-text p { color: #ccc; margin-bottom: 8px; }
+    blockquote { background: #1f1f1f; padding: 15px; border-right: 4px solid var(--red); border-radius: 10px; margin-top: 15px; color: #ddd; }
+    .founder-image { flex: 1; display: flex; justify-content: center; }
+    .founder-image img { width: 280px; height: 280px; border-radius: 50%; object-fit: cover; border: 6px solid var(--red); box-shadow: 0 0 30px rgba(186, 79, 79, 0.5); }
+    .call-btn { display: inline-block; margin-top: 20px; padding: 12px 25px; background: var(--red); color: var(--white); border-radius: 10px; text-decoration: none; transition: transform 0.3s, background-color 0.3s; }
+    .call-btn:hover { background-color: var(--red-dark); transform: translateY(-5px); }
+
+    /* --- Coaches Section --- */
+    .coaches-wrapper { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; margin-top: 50px; padding: 0 20px; }
+    .Coaches-File {
+        background-color: var(--text-color); border-radius: 15px; box-shadow: var(--shadow); overflow: hidden;
+        width: 100%; max-width: 320px; text-align: center; padding: 30px 20px;
+        transition: var(--transition); position: relative; border-top: 5px solid var(--red);
+    }
+    .Coaches-File:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.15); }
+    .img-Coaches { width: 120px; height: 120px; margin: 0 auto 20px; border-radius: 50%; overflow: hidden; border: 4px solid var(--red); position: relative; }
+    .img-Coaches img { width: 100%; height: 100%; object-fit: cover; }
+    .Coaches-File h3 { color: var(--white); margin-bottom: 10px; font-size: 1.4rem; }
+    .Coaches-File p { color: var(--white); margin-bottom: 8px; font-size: 0.95rem; line-height: 1.5; }
+    .Coaches-File blockquote { background-color: var(--red); border-right: 4px solid var(--red); padding: 15px; margin: 20px 0; font-style: italic; color: var(--white); border-radius: 4px; font-size: 0.9rem; text-align: right; }
+    .Coaches-File .call-btn { margin-top: 15px; width: 100%; box-sizing: border-box; text-align: center; }
+
+    /* --- About Card --- */
+    .page-center { max-width: 800px; margin: 0 auto 80px; padding: 0 20px; }
+    .about-card { background: var(--white); border-radius: 20px; box-shadow: var(--shadow); overflow: hidden; text-align: center; margin-top: 20px; }
+    .card-header { background: linear-gradient(135deg, var(--red), var(--red-dark)); padding: 30px 20px; color: var(--white); }
+    .school-icon { font-size: 3rem; margin-bottom: 15px; background: rgba(255,255,255,0.2); width: 80px; height: 80px; line-height: 80px; border-radius: 50%; display: inline-block; }
+    .school-name { font-size: 1.5rem; font-weight: 700; margin: 0; } .school-location { font-size: 0.9rem; opacity: 0.9; margin-top: 5px; }
+    .card-body { padding: 25px 20px; }
+    .info-row { display: flex; align-items: center; margin-bottom: 15px; text-align: right; padding-bottom: 15px; border-bottom: 1px solid #eee; }
+    .info-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .info-icon { color: var(--red); font-size: 1.2rem; width: 30px; margin-left: 10px; }
+    .info-text { font-size: 0.95rem; line-height: 1.5; } .highlight { font-weight: 700; color: var(--primary-color); }
+
+    /* --- Unified Footer --- */
+    .footer {
+        background-color: #1a252f; color: #ecf0f1; padding: 50px 0 20px; text-align: center;
+    }
+    .footer-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+    .footer-logo img { width: 80px; margin-bottom: 20px; }
+    .footer-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; }
+    .footer-links a { color: var(--white); text-decoration: none; font-weight: bold; position: relative; transition: 0.3s; }
+    .footer-links a::after { content: ""; position: absolute; width: 0; height: 2px; background: var(--red); bottom: -5px; right: 0; transition: 0.3s; }
+    .footer-links a:hover::after { width: 100%; }
+    .footer-links a:hover { color: var(--red); }
+    .footer-social-media { display: flex; justify-content: center; flex-wrap: wrap; gap: 25px; margin-top: 20px; margin-bottom: 30px; }
+    .social-name { display: flex; flex-direction: column; align-items: center; }
+    .social-name a { font-size: 22px; color: var(--white); transition: 0.3s; } 
+    .social-name a i { transition: 0.6s; }
+    .social-name a:hover i { transform: rotateY(200deg); color: var(--red); }
+    .social-name a:hover { color: var(--red); transform: scale(1.2); }
+    .social-name span { margin-top: 5px; font-size: 14px; }
+    .heart { color: var(--red); animation: beat 1s infinite; }
+    @keyframes beat { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+    .made-by { margin-bottom: 30px; font-size: 0.9rem; opacity: 0.7; }
+    .made-by a { text-decoration: none; color: var(--red); }
+    .footer-end { margin-top: 20px; font-size: 14px; color: #ccc; }
+
+    /* --- App Download Section --- */
+    .app-download-section {
+        margin-top: 40px; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .app-download-title { font-size: 1.2rem; color: var(--white); margin-bottom: 20px; font-weight: 700; }
+    .app-download-buttons { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+    .app-btn {
+        display: inline-flex; align-items: center; gap: 12px; background-color: #000; color: var(--white);
+        padding: 12px 24px; border-radius: 12px; text-decoration: none; transition: all 0.3s ease;
+        border: 1px solid rgba(255,255,255,0.2); min-width: 220px;
+    }
+    .app-btn:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.5); }
+    .app-btn i { font-size: 2.5rem; }
+    .app-btn-text { text-align: right; }
+    .app-btn-text small { display: block; font-size: 0.7rem; line-height: 1; opacity: 0.8; margin-bottom: 3px; }
+    .app-btn-text strong { display: block; font-size: 1.1rem; line-height: 1; font-weight: 800; }
+    .app-btn.android { background-color: #000; }
+    .app-btn.android i { color: #3ddc84; }
+
+    /* --- Scroll To Top --- */
+    .scroll-top {
+        position: fixed; bottom: 30px; left: 30px; background: var(--red); color: var(--white);
+        width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center;
+        justify-content: center; cursor: pointer; opacity: 0; visibility: hidden;
+        transition: all 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 999; text-decoration: none; border: none;
+    }
+    .scroll-top.show { opacity: 1; visibility: visible; }
+    .scroll-top:hover { background: var(--red-dark); transform: translateY(-3px); }
+
+    /* --- Scrollbar --- */
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-track { background: #eee; border-radius: 5px; }
+    ::-webkit-scrollbar-thumb { background: var(--red); border-radius: 5px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--red-dark); }
+
+    /* Focus Styles for Accessibility */
+    *:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+
+    /* --- RESPONSIVE CSS --- */
+    @media (max-width: 768px) {
+      .menu-toggle { display: block; }
+      .desktop-nav { display: none; }
+
+      .hero h1 { font-size: 2rem; }
+      .hero p { font-size: 1.1rem; }
+      .hero-slide { background-attachment: scroll; } 
+      
+      .cards-grid { grid-template-columns: 1fr; padding: 40px 20px; }
+      .flip-card { height: 400px; cursor: pointer; }
+
+      .founder-container { flex-direction: column-reverse; text-align: center; }
+      .founder-image img { width: 180px; height: 180px; }
+
+      .app-download-buttons { flex-direction: column; align-items: center; }
+      .app-btn { width: 100%; max-width: 260px; justify-content: center; }
+    }
+    
+    @media (min-width: 769px) {
+      .menu-toggle { display: none !important; }
+      .mobile-curtain-menu { display: none !important; }
+      .desktop-nav { display: flex !important; }
+      .cards-grid { grid-template-columns: repeat(4, 1fr); gap: 30px; padding: 80px 20px; }
+      .flip-card { cursor: pointer; }
+      .flip-card:hover .flip-inner { transform: rotateY(180deg); } 
+    }
+  </style>
+</head>
+<body>
+
+   <!-- Loader -->
+    
+
+
+<!-- Navbar -->
+<header class="navbar">
+  <div class="container">
+    <div class="logo">
+         <a href="index.html"><img src="img/sha14.png" alt="شعار المدرسة" onerror="this.style.display='none'"></a>
+    </div>
+    <nav class="desktop-nav">
+       <ul>
+        <li><a href="#"><i class="fa-solid fa-house"></i> الرئيسية</a></li>
+        <li><a href="#"><i class="fa-solid fa-question-circle"></i> أسئلة التوؤريا</a></li>
+        <li>
+            <a href="#"><i class="fa-solid fa-book"></i> دراسة للتؤوريا <i class="fa-solid fa-caret-down" style="font-size: 0.8em; margin-right: 5px;"></i></a> 
+            <ul>
+                <li><a href="#"><i class="fa-solid fa-list"></i> خطوات دراسة التؤوريا</a></li>
+                <li><a href="#"><i class="fa-solid fa-lightbulb"></i> أشارات المرور</a></li>
+                <li><a href="#"><i class="fa-solid fa-book"></i> كتاب التؤوريا</a></li>
+            </ul>
+        </li>
+        <li>
+            <a href="#"><i class="fa-solid fa-search"></i> الاستعلام عن <i class="fa-solid fa-caret-down" style="font-size: 0.8em; margin-right: 5px;"></i></a> 
+            <ul>
+                <li><a href="#"><i class="fa-solid fa-list"></i> متطلبات الحصول على الرخصة</a></li>
+                <li><a href="#"><i class="fa-solid fa-lightbulb"></i> أسعار الدروس والتستات</a></li>
+                <li><a href="#"><i class="fa-solid fa-book"></i> أسعار الدورات الاستكمالية</a></li>
+                <li><a href="#"><i class="fa-solid fa-book"></i> نتائج أمتحان العملي</a></li>
+                <li><a href="#"><i class="fa-solid fa-book"></i> نتائج أمتحان التؤوريا</a></li>
+            </ul>
+        </li>
+        <li><a href="#"><i class="fa-solid fa-info-circle"></i> الامتحان التجريبي</a></li>
+        <li><a href="#"><i class="fa-solid fa-phone"></i> أتصل بنا</a></li>
+       </ul>
+    </nav>
+    
+    <!-- Hamburger Button -->
+    <button class="menu-toggle" id="mobile-menu-btn" aria-label="Toggle Menu" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+</header>
+
+<!-- Mobile Curtain Menu -->
+<div class="mobile-curtain-menu" id="mobile-curtain-menu">
+    <ul class="mobile-nav-links">
+        <li><a href="#"><i class="fa-solid fa-house"></i> الرئيسية</a></li>
+        <li><a href="#"><i class="fa-solid fa-question-circle"></i> أسئلة التوؤريا</a></li>
+        <li>
+            <a href="javascript:void(0)">
+                <span><i class="fa-solid fa-book"></i> دراسة للتؤوريا</span>
+                <i class="fa-solid fa-chevron-down"></i>
+            </a>
+            <ul class="mobile-dropdown">
+                <li><a href="#"><i class="fa-solid fa-list"></i> خطوات دراسة التؤوريا</a></li>
+                <li><a href="#"><i class="fa-solid fa-lightbulb"></i> أشارات المرور</a></li>
+                <li><a href="#"><i class="fa-solid fa-book"></i> كتاب التؤوريا</a></li>
+            </ul>
+        </li>
+        <li>
+            <a href="javascript:void(0)">
+                <span><i class="fa-solid fa-search"></i> الاستعلام عن</span>
+                <i class="fa-solid fa-chevron-down"></i>
+            </a>
+            <ul class="mobile-dropdown">
+                <li><a href="#"><i class="fa-solid fa-list"></i> متطلبات الحصول على الرخصة</a></li>
+                <li><a href="#"><i class="fa-solid fa-lightbulb"></i> أسعار الدروس والتستات</a></li>
+                <li><a href="#"><i class="fa-solid fa-book"></i> أسعار الدورات الاستكمالية</a></li>
+                <li><a href="#"><i class="fa-solid fa-book"></i> نتائج أمتحان العملي</a></li>
+                <li><a href="#"><i class="fa-solid fa-book"></i> نتائج أمتحان التؤوريا</a></li>
+            </ul>
+        </li>
+        <li><a href="#"><i class="fa-solid fa-info-circle"></i> الامتحان التجريبي</a></li>
+        <li><a href="#"><i class="fa-solid fa-phone"></i> أتصل بنا</a></li>
+    </ul>
+</div>
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-slider">
+      <div class="hero-slide active" style="background-image: url('img/daf13.jpeg');">
+        <div class="hero-content">
+            <h1>مدرسة الشعراوية لتعليم السياقة</h1>
+            <p>طريقك الى النجاح والتميز</p>
+            <a href="#" class="btn">أسئلة التوؤريا</a>
+        </div>
+      </div>
+      <div class="hero-slide" style="background-image: url('img/scoda.jpeg');">
+        <div class="hero-content">
+            <h1>مدرسة الشعراوية لتعليم السياقة</h1>
+            <p>كفاحك جزء من نجاحك</p>
+            <a href="#" class="btn">أمتحان النظري التجريبي</a>
+        </div>
+      </div>
+      <div class="hero-slide" style="background-image: url('img/sonata.jpeg');">
+        <div class="hero-content">
+            <h1>مدرسة الشعراوية لتعليم السياقة</h1>
+            <p>تعلم القيادة حتى الاحتراف</p>
+            <a href="#" class="btn">أتصل بنا</a>
+        </div>
+      </div>
+      <div class="hero-slide" style="background-image: url('img/nero.jpeg');">
+        <div class="hero-content">
+            <h1>مدرسة الشعراوية لتعليم السياقة</h1>
+            <p>الخيار الأفضل للحصول على الرخصة</p>
+            <a href="#" class="btn">تواصل معنا</a>
+        </div>
+      </div>
+  </div>
+  <div class="waves">
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
+        <defs><path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" /></defs>
+        <g class="parallax">
+          <use xlink:href="#gentle-wave" x="48" y="0" fill="rgba(231, 76, 60, 0.7)" />
+          <use xlink:href="#gentle-wave" x="48" y="3" fill="rgba(231, 76, 60, 0.5)" />
+          <use xlink:href="#gentle-wave" x="48" y="5" fill="rgba(231, 76, 60, 0.3)" />
+          <use xlink:href="#gentle-wave" x="48" y="7" fill="#e74c3c" />
+        </g>
+      </svg>
+  </div>
+</section>
+
+<!-- Cards Section -->
+<div class="cards-grid">
+  <div class="flip-card luxury" tabindex="0" aria-label="الفحص الطبي">
+    <div class="flip-inner">
+      <div class="flip-front">
+        <div class="badge green"><i class="fa-solid fa-stethoscope"></i></div>
+        <h3>الفحص الطبي</h3>
+        <span>دائرة الصحة</span>
+      </div>
+      <div class="flip-back">
+        <h4>الفحص الطبي / دائرة الصحة</h4>
+        <p>الفحص الطبي هو الخطوة الأولى بعد عمل المعاملة في مدرسة السياقة، ويمكن التقدم للفحص الطبي في دائرة الصحة.</p>
+        <p class="info">الأيام: الأحد – الاثنين – الخميس</p>
+        <p class="info">الوقت: 08:00 – 10:30 صباحاً</p>
+        <div class="status success">خطوة أولى</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flip-card luxury" tabindex="0" aria-label="الفحص النظري">
+    <div class="flip-inner">
+      <div class="flip-front">
+        <div class="badge yellow"><i class="fa-solid fa-book"></i></div>
+        <h3>الفحص النظري</h3>
+        <span>التؤوريا / دائرة السير</span>
+      </div>
+      <div class="flip-back">
+        <h4>الفحص النظري (التؤوريا)</h4>
+        <p>بعد دراسة التؤوريا جيداً والتدرب على الامتحانات التدريبية الموجودة على موقع مدرسة الشعراوية لتعليم السياقة، يمكن التقدم للامتحان الرسمي.</p>
+        <p class="info">الأيام: الأحد – الخميس</p>
+        <p class="info">الحضور: 08:30 صباحاً</p>
+        <div class="status waiting">قيد الاستعداد</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flip-card luxury" tabindex="0" aria-label="الفحص العملي">
+    <div class="flip-inner">
+      <div class="flip-front">
+        <div class="badge blue"><i class="fa-solid fa-car"></i></div>
+        <h3>الفحص العملي</h3>
+        <span>التست / دائرة السير</span>
+      </div>
+      <div class="flip-back">
+        <h4>الفحص العملي (التست)</h4>
+        <p>الخطوة الأخيرة بعد إتقان مهارات القيادة الأساسية، ويتم التقدم للتست الرسمي بتعيين مسبق من خلال مدرسة السياقة.</p>
+        <p class="info">الأيام: الأحد – الخميس</p>
+        <p class="info">الموعد: يحدد مسبقاً (غير دقيق)</p>
+        <div class="status pending">بانتظار التعيين</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flip-card luxury" tabindex="0" aria-label="الحصول على الرخصة">
+    <div class="flip-inner">
+      <div class="flip-front">
+        <div class="badge dark"><i class="fa-solid fa-id-card"></i></div>
+        <h3>الحصول على الرخصة</h3>
+        <span>سلطة الترخيص</span>
+      </div>
+      <div class="flip-back">
+        <h4>الحصول على رخصة السياقة</h4>
+        <p>بعد النجاح في الإمتحان العملي يمكن استلام رخصة السياقة من دائرة السير.</p>
+        <p class="info">الأيام: الأحد – الخميس</p>
+        <p class="info">الوقت: 08:00 – 01:00 ظهراً</p>
+        <div class="status success">ناجح 🎉</div>
+      </div>
+    </div>
+  </div>
+</div>
+   
+<!-- Founder Section -->
+<div class="founder-section">
+    <div class="founder-container">
+        <div class="founder-text">
+            <h2>صاحب المدرسة</h2>
+            <h3>عمار شديد أبو أياد</h3>
+            <p>📞056-974-7709 | 059-974-7709</p>
+            <p>خصوصي - عمومي - أوتوماتيك - جير عادي - شحن</p>
+            <p>تعليم تؤوريا نظري</p>
+            <p>تدريب سياقة عملي</p>
+            <p>مدربات سياقة للسيدات</p>
+            <blockquote>"تأكد أننا الطريق الأقصر للنجاح مع أننا لسنا الوحيدون لكننا المتميزون بالتواصل مع طلابنا حتى النجاح"</blockquote>
+            <a href="tel:0569747709" class="call-btn">&nbsp<i style="color: var(--white);" class="fa-solid fa-phone"></i> اتصل الآن</a>
+            <a target="_blank" style="background-color: #27ae60;" href="https://wa.me/+970569747709" class="call-btn">whatsApp <i class="fa-brands fa-whatsapp"></i></a>
+        </div>
+        <div class="founder-image">
+            <img src="img/amar shadid.jpeg" alt="صاحب المدرسة" onerror="this.src='https://via.placeholder.com/280?text=Founder'">
+        </div>
+    </div>
+   <br><hr style="width: 100%; border-color: #333;"><br>
+   
+   <!-- Coaches Section -->
+    <div class="coaches-wrapper">
+        <div class="Coaches-File">
+            <div class="img-Coaches">
+                <img src="img/Eyad shadid.jpeg" alt="صورة المدرب" onerror="this.src='https://via.placeholder.com/120?text=Coach'">
+            </div>
+            <h3>أياد شديد أبو عمار</h3>
+            <p>059-924-9939 <i style="color: var(--white);" class="fa-solid fa-phone"></i></p>
+            <p>خصوصي - عمومي - أوتوماتيك - جير عادي - شحن</p>
+            <blockquote>"تؤوريا بيومين وتست باسبوع مع المدرب أياد شديد"</blockquote>
+            <a href="tel:0599249939" class="call-btn">اتصل الآن &nbsp<i style="color: var(--white);" class="fa-solid fa-phone"></i></a>
+            <a target="_blank" style="background-color: #27ae60;" href="https://wa.me/+970599249939" class="call-btn">whatsApp <i class="fa-brands fa-whatsapp"></i></a>
+        </div>
+
+        <div class="Coaches-File">
+            <div class="img-Coaches">
+                <img src="img/wassem12.jpeg" alt="صورة المدرب" onerror="this.src='https://via.placeholder.com/120?text=Coach'">
+            </div>
+            <h3>وسيم شديد أبو مطيع</h3>
+            <p>056-860-5605 📞</p>
+            <p>خصوصي - عمومي - أوتوماتيك - جير عادي - شحن</p>
+            <blockquote>"اكتسب ثقافة السياقة الصحيحة مع اخصائي التدريب وسيم شديد"</blockquote>
+            <a href="tel:0568605605" class="call-btn">اتصل الآن &nbsp<i style="color: var(--white);" class="fa-solid fa-phone"></i></a>
+            <a target="_blank" style="background-color: #27ae60;" href="https://wa.me/+970568605605" class="call-btn">whatsApp <i class="fa-brands fa-whatsapp"></i></a>
+        </div>
+    </div>
+</div>
+
+<!-- About School Card -->
+<div class="page-center">
+    <div class="about-card">
+        <div class="card-header">
+            <div class="school-icon"><i class="fa-solid fa-school"></i></div>
+            <h2 class="school-name">مدرسة الشعراوية لتعليم سياقة </h2>
+            <div class="school-location"><i class="fa-solid fa-location-dot"></i> طولكرم - فلسطين</div>
+        </div>
+        <div class="card-body">
+            <div class="info-row">
+                <div class="info-icon"><i class="fa-solid fa-calendar-check"></i></div>
+                <div class="info-text">تأسست عام <span class="highlight">1985 على يد عمار شديد (أبو أياد)</span>، وهي من أعرق المدارس في المنطقة.</div>
+            </div>
+            <div class="info-row">
+                <div class="info-icon"><i class="fa-solid fa-star"></i></div>
+                <div class="info-text">تعليم <span class="highlight">عملي ونظري</span> باحترافية عالية لتأهيل الطلاب للحصول على الرخصة.</div>
+            </div>
+            <div class="info-row">
+                <div class="info-icon"><i class="fa-solid fa-user-graduate"></i></div>
+                <div class="info-text">يوجد <span class="highlight">مدربات متخصصات</span> لتعليم السيدات بكل راحة وخصوصية.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-container">
+        <div class="footer-logo">
+            <img src="img/sha14.png" alt="شعار المدرسة" onerror="this.style.display='none'">
+        </div>
+        <div class="footer-links">
+            <a href="#">الرئيسية</a>
+            <a href="#">أسئلة التؤوريا</a>
+            <a href="#">دراسة التؤوريا</a>
+            <a href="#">الامتحان التجريبي</a>
+            <a href="#">أتصل بنا</a>
+            <a href="#">نتائج الامتحان التؤوريا</a>
+            <a href="#">نتائج الامتحان العملي</a>
+        </div>
+        <hr style="border-color: #333;">
+        <div class="footer-social-media">
+            <div class="social-name">
+                <a href="https://www.facebook.com" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                <span>فيسبوك</span>
+            </div>
+            <div class="social-name">
+                <a href="https://www.tiktok.com" target="_blank"><i class="fab fa-tiktok"></i></a>
+                <span>تيك توك</span>
+            </div>
+            <div class="social-name">
+                <a href="" target="_blank"><i class="fab fa-instagram"></i></a>
+                <span>إنستغرام</span>
+            </div>
+            <div class="social-name">
+                <a href="#" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                <span>أياد شديد</span>
+            </div>
+            <div class="social-name">
+                <a href="#" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                <span>وسيم شديد</span>
+            </div>
+        </div>
+
+        <!-- Professional App Download Section -->
+        <div class="app-download-section">
+            <h3 class="app-download-title">حمّل تطبيق المدرسة الآن</h3>
+            <div class="app-download-buttons">
+                <a href="#" class="app-btn apple">
+                    <i class="fab fa-apple"></i>
+                    <div class="app-btn-text">
+                        <small>حمّل من</small>
+                        <strong>App Store</strong>
+                    </div>
+                </a>
+                <a href="#" class="app-btn android">
+                    <i class="fab fa-google-play"></i>
+                    <div class="app-btn-text">
+                        <small>احصل عليه من</small>
+                        <strong>Google Play</strong>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+    </div>
+    <br><hr style="border-color: #333;"><br>
+    <div class="made-by">
+        MADE WITH <span class="heart">❤</span> BY <a href="#" target="_blank" title="تواصل مع محمد زكي ">MOHAMMAD ZAKY</a>
+    </div>
+    <hr style="border-color: #333;">
+    <div class="footer-end">
+        <p>جميع الحقوق محفوظة مدرسة الشعراوية. &copy; <span id="currentYear"></span></p>
+        <br><hr style="border-color: #333;"><br>
+        <p>⚠️ يمنع نسخ أو إعادة نشر أي جزء بدون إذن. ⚠️ &copy; <span id="currentYear2"></span></p>
+    </div>
+    
+    <div class="scroll-top" id="scrollTopBtn">
+        <i class="fa-solid fa-circle-arrow-up"></i>
+    </div>
+</footer>
+
+<script>
+    // --- Dynamic Year ---
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+    document.getElementById('currentYear2').textContent = new Date().getFullYear();
+
+
+
+    // --- Mobile Menu Logic ---
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileCurtainMenu = document.getElementById('mobile-curtain-menu');
+    const mobileDropdownToggles = document.querySelectorAll('.mobile-nav-links > li > a');
+
+    function openMenu() {
+        mobileCurtainMenu.classList.add('active');
+        mobileMenuBtn.classList.add('active');
+        document.body.classList.add('menu-open');
+        mobileMenuBtn.setAttribute('aria-expanded', 'true');
+    }
+
+    function closeMenu() {
+        mobileCurtainMenu.classList.remove('active');
+        mobileMenuBtn.classList.remove('active');
+        document.body.classList.remove('menu-open');
+        mobileMenuBtn.setAttribute('aria-expanded', 'false');
+        
+        // Reset dropdowns smoothly
+        document.querySelectorAll('.mobile-nav-links > li').forEach(item => {
+            item.classList.remove('open');
+            const dropdown = item.querySelector('.mobile-dropdown');
+            if (dropdown) {
+                dropdown.style.maxHeight = null;
+                dropdown.style.opacity = '0';
+            }
+        });
+    }
+
+    mobileMenuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (mobileCurtainMenu.classList.contains('active')) closeMenu();
+        else openMenu();
+    });
+
+    mobileCurtainMenu.addEventListener('click', (e) => {
+        if (e.target === mobileCurtainMenu) closeMenu();
+    });
+
+    mobileDropdownToggles.forEach(toggle => {
+        toggle.addEventListener('click', (e) => {
+            const dropdown = toggle.nextElementSibling;
+            const parentLi = toggle.parentElement;
+            
+            if (dropdown && dropdown.classList.contains('mobile-dropdown')) {
+                e.preventDefault();
+                
+                document.querySelectorAll('.mobile-nav-links > li').forEach(item => {
+                    if (item !== parentLi && item.classList.contains('open')) {
+                        item.classList.remove('open');
+                        const otherDropdown = item.querySelector('.mobile-dropdown');
+                        if (otherDropdown) {
+                            otherDropdown.style.maxHeight = null;
+                            otherDropdown.style.opacity = '0';
+                        }
+                    }
+                });
+                
+                parentLi.classList.toggle('open');
+                if (parentLi.classList.contains('open')) {
+                    dropdown.style.maxHeight = dropdown.scrollHeight + "px";
+                    dropdown.style.opacity = '1';
+                } else {
+                    dropdown.style.maxHeight = null;
+                    dropdown.style.opacity = '0';
+                }
+            } else {
+                closeMenu();
+            }
+        });
+    });
+
+    // --- Navbar Scroll Effect (Throttled) ---
+    let ticking = false;
+    window.addEventListener('scroll', function() {
+        if (!ticking) {
+            window.requestAnimationFrame(function() {
+                const navbar = document.querySelector('.navbar');
+                const scrollTopBtn = document.getElementById('scrollTopBtn');
+                
+                if (window.scrollY > 50) navbar.classList.add('scrolled');
+                else navbar.classList.remove('scrolled');
+
+                if (window.scrollY > 300) scrollTopBtn.classList.add('show');
+                else scrollTopBtn.classList.remove('show');
+                
+                ticking = false;
+            });
+            ticking = true;
+        }
+    });
+
+    // --- Hero Slider Logic ---
+    const slides = document.querySelectorAll('.hero-slide');
+    let currentSlide = 0;
+    const totalSlides = slides.length;
+    
+    function updateSlider() {
+        slides.forEach((slide, index) => {
+            slide.classList.remove('active');
+            if (index === currentSlide) slide.classList.add('active');
+        });
+    }
+    
+    function nextSlide() {
+        currentSlide = (currentSlide + 1) % totalSlides;
+        updateSlider();
+    }
+    
+    let autoPlay = setInterval(nextSlide, 5000);
+    updateSlider();
+
+    // --- Scroll To Top ---
+    document.getElementById('scrollTopBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // --- Flip Cards Click Interaction ---
+    const flipCards = document.querySelectorAll('.flip-card');
+    flipCards.forEach(card => {
+        card.addEventListener('click', () => {
+            card.classList.toggle('flipped');
+        });
+        card.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                card.classList.toggle('flipped');
+            }
+        });
+    });
+</script>
+</body>
+</html>
